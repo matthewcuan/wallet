@@ -1,0 +1,63 @@
+name: Wallet
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+targets:
+  Wallet:
+    type: application
+    platform: iOS
+    sources:
+      - path: Wallet
+    info:
+      path: Wallet/Info.plist
+      properties:
+        CFBundleDisplayName: Wallet
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        NSCameraUsageDescription: Used to scan barcodes that you want to add to Apple Wallet.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIRequiredDeviceCapabilities:
+          - arm64
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.Wallet
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ENABLE_PREVIEWS: YES
+
+  WalletTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - WalletTests
+    dependencies:
+      - target: Wallet
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.WalletTests
+        BUNDLE_LOADER: $(TEST_HOST)
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Wallet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wallet
+
+schemes:
+  Wallet:
+    build:
+      targets:
+        Wallet: all
+        WalletTests: [test]
+    test:
+      targets:
+        - WalletTests

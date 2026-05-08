@@ -26,7 +26,18 @@ npm run dev
 
 ### iOS
 
-Open `ios/Wallet.xcodeproj` in Xcode 15+ and run on the iOS 17 simulator or a device.
+The Xcode project is generated from `ios/project.yml` via [xcodegen](https://github.com/yonaskolb/XcodeGen):
+
+```sh
+brew install xcodegen   # one-off
+cd ios
+xcodegen                # produces Wallet.xcodeproj + Wallet/Info.plist
+open Wallet.xcodeproj
+```
+
+Both `Wallet.xcodeproj/` and the generated `Info.plist` are gitignored — re-run `xcodegen` whenever `project.yml` changes.
+
+Run on the iOS 17 simulator (no camera, scanner UI shows a fallback) or a real device (camera permission prompts on first scan).
 
 ## Tests
 

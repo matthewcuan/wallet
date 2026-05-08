@@ -33,6 +33,10 @@ Pods/
 *.ipa
 *.dSYM.zip
 
+# xcodegen-generated artefacts (project.yml is the source of truth)
+ios/*.xcodeproj/
+ios/Wallet/Info.plist
+
 # IDE
 .idea/
 .vscode/
