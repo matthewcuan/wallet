@@ -24,6 +24,10 @@ enum PassPalette: String, CaseIterable, Identifiable {
         case .crimson:  PassColors(background: "#7A1F2B", foreground: "#FFFFFF", label: "#F2A1A8")
         }
     }
+
+    static func matching(_ colors: PassColors) -> PassPalette? {
+        allCases.first { $0.colors == colors }
+    }
 }
 
 struct PassPalettePicker: View {
