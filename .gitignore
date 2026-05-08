@@ -1,0 +1,41 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+.npm
+.pnpm-debug.log
+coverage/
+.nyc_output/
+
+# Backend secrets — never commit certificates or private keys
+backend/certs/
+*.p12
+*.pem
+*.key
+
+# Swift / Xcode
+.DS_Store
+xcuserdata/
+*.xcuserstate
+DerivedData/
+.build/
+Pods/
+*.xcworkspace/xcuserdata/
+.swiftpm/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+Thumbs.db
