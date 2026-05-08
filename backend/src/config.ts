@@ -7,9 +7,11 @@ export type Config = {
   passTypeIdentifier: string;
   teamIdentifier: string;
   organizationName: string;
-  passCertPath: string;
-  passCertPassword: string;
+  signerCertPath: string;
+  signerKeyPath: string;
+  signerKeyPassphrase: string;
   wwdrCertPath: string;
+  templatesPath: string;
 };
 
 export const loadConfig = (): Config => {
@@ -21,16 +23,19 @@ export const loadConfig = (): Config => {
     passTypeIdentifier: process.env.PASS_TYPE_IDENTIFIER ?? '',
     teamIdentifier: process.env.TEAM_IDENTIFIER ?? '',
     organizationName: process.env.ORGANIZATION_NAME ?? 'Wallet',
-    passCertPath: process.env.PASS_CERT_PATH ?? '',
-    passCertPassword: process.env.PASS_CERT_PASSWORD ?? '',
+    signerCertPath: process.env.SIGNER_CERT_PATH ?? '',
+    signerKeyPath: process.env.SIGNER_KEY_PATH ?? '',
+    signerKeyPassphrase: process.env.SIGNER_KEY_PASSPHRASE ?? '',
     wwdrCertPath: process.env.WWDR_CERT_PATH ?? '',
+    templatesPath: process.env.TEMPLATES_PATH ?? './templates',
   };
 
   if (!mockSigner) {
     const required: Array<keyof Config> = [
       'passTypeIdentifier',
       'teamIdentifier',
-      'passCertPath',
+      'signerCertPath',
+      'signerKeyPath',
       'wwdrCertPath',
     ];
     for (const key of required) {

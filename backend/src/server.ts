@@ -1,19 +1,16 @@
 import { buildApp } from './app';
 import { loadConfig } from './config';
 import { createMockSigner } from './pass/mockSigner';
+import { loadRealSigner } from './pass/realSigner';
+import type { Signer } from './pass/signer';
 
 const main = async (): Promise<void> => {
   const config = loadConfig();
+  const signer: Signer = config.mockSigner
+    ? createMockSigner()
+    : await loadRealSigner(config);
 
-  if (!config.mockSigner) {
-    throw new Error(
-      'Real signer is not yet implemented. Set MOCK_SIGNER=true or wire up the passkit-generator integration.',
-    );
-  }
-
-  const signer = createMockSigner();
   const app = buildApp({ signer, logger: true });
-
   await app.listen({ host: config.host, port: config.port });
 };
 
