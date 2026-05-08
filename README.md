@@ -54,9 +54,17 @@ xcodebuild -project ios/Wallet.xcodeproj -scheme Wallet \
 
 Before real `.pkpass` signing works on a device:
 
-1. Enrol in the [Apple Developer Program](https://developer.apple.com/programs/) ($99/yr).
+1. Enroll in the [Apple Developer Program](https://developer.apple.com/programs/) ($99/yr).
 2. Create a **Pass Type ID** in the developer portal.
-3. Generate the Pass Type ID certificate; export it as a `.p12`.
-4. Download Apple's WWDR intermediate certificate.
-5. Place the `.p12` and WWDR `.pem` under `backend/certs/` (gitignored) and fill in `backend/.env`.
-6. Set `MOCK_SIGNER=false` in `backend/.env`.
+3. Generate the Pass Type ID certificate and export it as a `.p12`.
+4. Extract the cert and key as PEMs (passkit-generator needs them separate):
+
+   ```sh
+   openssl pkcs12 -in pass.p12 -clcerts -nokeys -out backend/certs/signerCert.pem
+   openssl pkcs12 -in pass.p12 -nocerts        -out backend/certs/signerKey.pem
+   ```
+
+5. Download Apple's [WWDR intermediate certificate](https://www.apple.com/certificateauthority/) to `backend/certs/wwdr.pem`.
+6. Fill in `backend/.env` with the cert paths, your Pass Type ID, and your Team ID.
+7. Provide pass templates under `backend/templates/<passType>/` (one folder per pass type, each containing `pass.json`, `icon.png`/@2x/@3x, `logo.png`/@2x/@3x).
+8. Set `MOCK_SIGNER=false` in `backend/.env`.
