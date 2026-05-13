@@ -2,7 +2,7 @@
 
 Living snapshot of what's done and what's pending. Update whenever a commit lands, a task starts or finishes, or scope shifts.
 
-Last updated: 2026-05-08
+Last updated: 2026-05-13
 
 ## Done
 
@@ -16,6 +16,8 @@ Last updated: 2026-05-08
 | ad727d5 | 2026-05-08 | ci: add GitHub Actions workflow for backend tests                                                                 |
 | 18e8969 | 2026-05-08 | feat(ios): add edit-card UI in CardDetailView                                                                     |
 | e71a214 | 2026-05-08 | feat(backend): scaffold real pkpass signer behind passkit-generator                                               |
+| e5271bb | 2026-05-08 | docs: refresh README cert steps and STATUS.md changelog                                                          |
+| dbfc6f4 | 2026-05-13 | feat(backend): add PassSlot hosted signer alongside mock and passkit; refactor MOCK_SIGNER → SIGNER enum         |
 
 ## Pending — v1 gaps
 
@@ -29,8 +31,8 @@ The Swift code was written from docs without a Mac, so it has never been built.
   - `barcode.observation.symbology` in `BarcodeScanner.swift` (VisionKit API path)
   - SwiftData enum-typed properties on `Card`
 
-### 2. End-to-end smoke (mock signer)
-Backend running + iOS app on a phone, verify scan → form → POST `/pass` → mock bytes received. The Wallet-sheet failure at `PKPass(data:)` is expected and documented in TESTING.md.
+### 2. End-to-end smoke
+Backend running + iOS app on a phone, verify scan → form → POST `/pass` → bytes received. With `SIGNER=mock` (default), Wallet-sheet `PKPass(data:)` is expected to fail; with `SIGNER=passslot` (PassSlot App Key + template configured per README) the full add-to-Wallet flow should complete.
 
 ### 3. Real pkpass signing — final verification
 The signer code itself is in (commit `e71a214`); what remains is the cert + assets work and proving a signed pass loads on a real device.
@@ -38,7 +40,7 @@ The signer code itself is in (commit `e71a214`); what remains is the cert + asse
 - Extract `signerCert.pem` and `signerKey.pem` (commands in README)
 - Download WWDR `.pem` → `backend/certs/wwdr.pem`
 - Build `backend/templates/<passType>/` directories with real `pass.json`, `icon.png`/@2x/@3x, `logo.png`/@2x/@3x
-- Flip `MOCK_SIGNER=false` and verify a signed pass actually adds to a real device's Wallet
+- Set `SIGNER=passkit` and verify a signed pass actually adds to a real device's Wallet
 
 ## Pending — pre-deploy chores
 
@@ -74,3 +76,4 @@ Intentionally out of scope for v1.
 - 2026-05-08: Stayed on Fastify v4 + Node 18 for now; v5 + Node 20 upgrade deferred to pre-deploy.
 - 2026-05-08: xcodegen owns the Xcode project — `Wallet.xcodeproj/` and `Wallet/Info.plist` are gitignored, regenerated from `ios/project.yml`.
 - 2026-05-08: Backend cert layout uses separate `signerCert.pem` + `signerKey.pem` (extracted from the Apple `.p12` via `openssl pkcs12`), because that's the shape passkit-generator's `CertificatesSchema` expects.
+- 2026-05-13: PassSlot added as a third signer alongside `mock` and `passkit`. Selected via the new `SIGNER` env enum (replaces boolean `MOCK_SIGNER`). PassSlot gives a no-Apple-Dev-account path to real Wallet adds, at the cost of using PassSlot's Pass Type ID and template-owned visual design.
