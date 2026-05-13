@@ -4,7 +4,11 @@ iOS app that scans barcodes and adds them to Apple Wallet as signed `.pkpass` fi
 
 ## Status
 
-Early scaffolding. The app and backend are wired together against a **mock signer** that returns a placeholder `.pkpass`. Real signing turns on once an Apple Developer Program membership and Pass Type ID certificate are in place.
+Early scaffolding. The backend can run against three signers, picked via `SIGNER` in `backend/.env`:
+
+- `mock` (default) — returns a JSON envelope. iOS `PKPass(data:)` rejects these; the round-trip works, the final Wallet hand-off doesn't.
+- `passslot` — uses [PassSlot](https://www.passslot.com/) as a hosted signing service. **No Apple Developer Program required.** Free tier covers 1,000 passes / 1 Pass Type ID. See [Using PassSlot for testing](#using-passslot-for-testing).
+- `passkit` — uses your own Apple-issued Pass Type ID certificate via passkit-generator. Required for shipping under your own branding. See [Apple Developer prerequisites](#apple-developer-prerequisites).
 
 ## Layout
 
@@ -50,9 +54,36 @@ xcodebuild -project ios/Wallet.xcodeproj -scheme Wallet \
   -destination 'platform=iOS Simulator,name=iPhone 15' test
 ```
 
+## Using PassSlot for testing
+
+The cheapest way to see a real signed pass open in Wallet on a device, without enrolling in the Apple Developer Program:
+
+1. Create a free account at https://www.passslot.com/.
+2. **Templates → New** — design a template for the pass type you want (e.g. *Store Card*). Add a barcode.
+3. In the template designer, define text placeholders with these exact names so the backend's field mapping lines up:
+   - `label`
+   - `description`
+   - `passType`
+   - `barcodeMessage`
+   - `barcodeAltText`
+4. Wire `barcodeMessage` into the template's barcode value.
+5. Save. Note the template ID (in the URL).
+6. **Account → App Keys** — create an App Key with permission to use that template.
+7. Fill `backend/.env`:
+
+   ```
+   SIGNER=passslot
+   PASSSLOT_APP_KEY=<your-app-key>
+   PASSSLOT_TEMPLATE_ID=<your-template-id>
+   ```
+
+8. Restart `npm run dev`. The iOS app's "Add to Wallet" flow now ends with a real Wallet prompt on the phone.
+
+Caveats: the resulting pass shows PassSlot's Pass Type ID, not yours. The colour palettes in the iOS UI are decorative under PassSlot — the template's design owns the colours; the backend only fills text and barcode values.
+
 ## Apple Developer prerequisites
 
-Before real `.pkpass` signing works on a device:
+For shipping a real product under your own branding (instead of routing through PassSlot):
 
 1. Enroll in the [Apple Developer Program](https://developer.apple.com/programs/) ($99/yr).
 2. Create a **Pass Type ID** in the developer portal.
@@ -67,4 +98,4 @@ Before real `.pkpass` signing works on a device:
 5. Download Apple's [WWDR intermediate certificate](https://www.apple.com/certificateauthority/) to `backend/certs/wwdr.pem`.
 6. Fill in `backend/.env` with the cert paths, your Pass Type ID, and your Team ID.
 7. Provide pass templates under `backend/templates/<passType>/` (one folder per pass type, each containing `pass.json`, `icon.png`/@2x/@3x, `logo.png`/@2x/@3x).
-8. Set `MOCK_SIGNER=false` in `backend/.env`.
+8. Set `SIGNER=passkit` in `backend/.env`.

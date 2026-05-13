@@ -28,7 +28,7 @@ cp .env.example .env
 npm install
 ```
 
-Default `.env` runs the **mock signer**, which echoes the request as a JSON buffer. Real signing isn't wired yet (see *Apple Developer prerequisites* in `README.md`).
+Default `.env` runs the **mock signer**, which echoes the request as a JSON buffer (good for UI/wiring work, not for the real Wallet hand-off). Switch to `SIGNER=passslot` in `backend/.env` to get real signed passes without an Apple Developer account — see *Using PassSlot for testing* in `README.md`. `SIGNER=passkit` is the path for your own Apple-issued cert.
 
 ### Unit tests
 
@@ -157,7 +157,7 @@ to your Mac's IP, e.g. `http://192.168.1.42:3000`. Both devices must be on the s
 | Scanner                  | Yes    | Device only — simulator has no camera                                                                                                                                              |
 | SwiftData persistence    | Yes    | Cards survive relaunches                                                                                                                                                           |
 | `POST /pass` round-trip  | Yes    | iOS receives the mock bytes                                                                                                                                                        |
-| **Add to Wallet**        | **No** | `PKPass(data:)` rejects the mock buffer — the form surfaces the error in red. Real signing arrives once an Apple Pass Type ID certificate is wired up (project task `#5`).         |
+| **Add to Wallet**        | **No** | `PKPass(data:)` rejects the mock buffer — the form surfaces the error in red. Switch to `SIGNER=passslot` (free, no Apple Dev account) or `SIGNER=passkit` (your own cert) to make this step succeed. |
 
 ## Troubleshooting
 
