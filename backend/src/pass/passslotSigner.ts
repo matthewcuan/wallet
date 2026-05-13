@@ -11,7 +11,6 @@ const DEFAULT_BASE_URL = 'https://api.passslot.com/v1';
 type CreatePassResponse = {
   passTypeIdentifier: string;
   serialNumber: string;
-  url?: string;
 };
 
 // PassSlot is a hosted pkpass-signing service. The user designs a template
@@ -62,9 +61,10 @@ export const createPassslotSigner = (
         );
       }
 
-      const downloadUrl =
-        meta.url ??
-        `${baseUrl}/passes/${encodeURIComponent(meta.passTypeIdentifier)}/${encodeURIComponent(meta.serialNumber)}`;
+      // PassSlot also returns a `url` in the create response, but that's a
+      // user-facing landing page (different host, HTML), not the binary.
+      // The API endpoint below is the one that streams .pkpass bytes.
+      const downloadUrl = `${baseUrl}/passes/${encodeURIComponent(meta.passTypeIdentifier)}/${encodeURIComponent(meta.serialNumber)}`;
 
       const downloadResponse = await fetchImpl(downloadUrl, {
         headers: { Authorization: authHeader },

@@ -105,9 +105,13 @@ describe('createPassslotSigner', () => {
     );
   });
 
-  it('falls back to a constructed download URL when the create response omits one', async () => {
+  it('ignores the url field in the create response and uses the API download path', async () => {
     fetchMock
-      .mockResolvedValueOnce(makeCreateResponse({ url: undefined }))
+      .mockResolvedValueOnce(
+        makeCreateResponse({
+          url: 'https://d.pslot.io/p/some-landing-page?t=token',
+        }),
+      )
       .mockResolvedValueOnce(makeDownloadResponse());
 
     await buildSigner().sign(validRequest);
@@ -116,6 +120,7 @@ describe('createPassslotSigner', () => {
     expect(downloadUrl).toBe(
       'https://api.passslot.com/v1/passes/pass.com.passslot.demo/serial-1',
     );
+    expect(downloadUrl).not.toContain('pslot.io');
   });
 
   it('throws when the create-pass request fails', async () => {
