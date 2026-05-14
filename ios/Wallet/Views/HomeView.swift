@@ -4,6 +4,7 @@ import SwiftUI
 struct HomeView: View {
     @Query(sort: \Card.createdAt, order: .reverse) private var cards: [Card]
     @State private var isShowingScanner = false
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         NavigationStack {
@@ -19,6 +20,13 @@ struct HomeView: View {
                         ForEach(cards) { card in
                             NavigationLink(value: card) {
                                 CardRow(card: card)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    modelContext.delete(card)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
