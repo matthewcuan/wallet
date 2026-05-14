@@ -51,9 +51,18 @@ struct PassFormView: View {
                     .disabled(!isFormValid || isSubmitting)
             }
         }
-        .sheet(item: $passData, onDismiss: onComplete) { payload in
-            WalletAdderSheet(passData: payload.data) { _ in
+        .sheet(item: $passData) { payload in
+            WalletAdderSheet(passData: payload.data) { outcome in
                 passData = nil
+                switch outcome {
+                case .added:
+                    persistCard()
+                    onComplete()
+                case .cancelled:
+                    break
+                case .failed(let error):
+                    errorMessage = error.localizedDescription
+                }
             }
         }
     }
@@ -81,7 +90,6 @@ struct PassFormView: View {
 
         do {
             let data = try await passClient.sign(request)
-            persistCard()
             passData = WalletPayload(data: data)
         } catch {
             errorMessage = error.localizedDescription

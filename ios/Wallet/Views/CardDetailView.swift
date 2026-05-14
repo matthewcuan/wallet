@@ -44,8 +44,11 @@ struct CardDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
         .sheet(item: $passData) { payload in
-            WalletAdderSheet(passData: payload.data) { _ in
+            WalletAdderSheet(passData: payload.data) { outcome in
                 passData = nil
+                if case .failed(let error) = outcome {
+                    errorMessage = error.localizedDescription
+                }
             }
         }
     }
