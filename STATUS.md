@@ -2,7 +2,7 @@
 
 Living snapshot of what's done and what's pending. Update whenever a commit lands, a task starts or finishes, or scope shifts.
 
-Last updated: 2026-05-13
+Last updated: 2026-05-19
 
 ## Done
 
@@ -18,6 +18,10 @@ Last updated: 2026-05-13
 | e71a214 | 2026-05-08 | feat(backend): scaffold real pkpass signer behind passkit-generator                                               |
 | e5271bb | 2026-05-08 | docs: refresh README cert steps and STATUS.md changelog                                                          |
 | dbfc6f4 | 2026-05-13 | feat(backend): add PassSlot hosted signer alongside mock and passkit; refactor MOCK_SIGNER → SIGNER enum         |
+| c11c941 | 2026-05-13 | docs: log PassSlot signer in STATUS.md                                                                          |
+| 879b941 | 2026-05-13 | fix(backend): use PassSlot API path for pkpass download, not the response url                                   |
+| bb22174 | 2026-05-13 | feat(ios): surface friendly message when a scanned barcode isn't Wallet-compatible                              |
+| d5d5c25 | 2026-05-19 | feat(ios): apply Stash design — warm theme, 8-palette tiles, custom header, overlay scanner, color-block detail |
 
 ## Pending — v1 gaps
 
@@ -77,3 +81,4 @@ Intentionally out of scope for v1.
 - 2026-05-08: xcodegen owns the Xcode project — `Wallet.xcodeproj/` and `Wallet/Info.plist` are gitignored, regenerated from `ios/project.yml`.
 - 2026-05-08: Backend cert layout uses separate `signerCert.pem` + `signerKey.pem` (extracted from the Apple `.p12` via `openssl pkcs12`), because that's the shape passkit-generator's `CertificatesSchema` expects.
 - 2026-05-13: PassSlot added as a third signer alongside `mock` and `passkit`. Selected via the new `SIGNER` env enum (replaces boolean `MOCK_SIGNER`). PassSlot gives a no-Apple-Dev-account path to real Wallet adds, at the cost of using PassSlot's Pass Type ID and template-owned visual design.
+- 2026-05-19: Applied the Stash design from `claude.ai/design`. New design tokens (Helvetica Neue, warm `#F7F5F1` background, coral `#C24A2C` accent), 8 named palettes (Forest/Clay/Ink/Mustard/Slate/Plum/Sage/Coral) replacing the prior 5, and a user-facing `CardKind` taxonomy (Loyalty/Ticket/Membership/Gift/Library/Other) mapped onto Apple's `PassType` for the backend. `Card` schema changed (no migration plan — wipe-and-reinstall in dev). Backend untouched. `CFBundleDisplayName` flipped to "Stash"; target/folder names stay "Wallet" to avoid a wholesale rename.
