@@ -17,7 +17,7 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
             qualityLevel: .balanced,
             recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: false,
-            isHighlightingEnabled: true
+            isHighlightingEnabled: false
         )
         scanner.delegate = context.coordinator
         try? scanner.startScanning()
@@ -70,8 +70,6 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
             }
         }
 
-        // Wallet only accepts QR, PDF417, Aztec and Code 128; everything else
-        // VisionKit can recognise gets surfaced to the user by name.
         static func displayName(for symbology: VNBarcodeSymbology) -> String {
             switch symbology {
             case .ean8: return "EAN-8"

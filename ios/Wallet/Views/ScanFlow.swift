@@ -5,12 +5,15 @@ struct ScanFlow: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
+        ZStack {
             if let scanned {
                 PassFormView(barcode: scanned, onComplete: { dismiss() })
+                    .transition(.opacity)
             } else {
-                ScanView { scanned = $0 }
+                ScanView(onScan: { scanned = $0 })
+                    .transition(.opacity)
             }
         }
+        .animation(.easeOut(duration: 0.2), value: scanned)
     }
 }

@@ -29,4 +29,13 @@ extension BarcodeFormat {
         default: return nil
         }
     }
+
+    // QR and Aztec are 2D matrix codes; PDF417 and Code 128 are linear.
+    // Used to pick a glyph in card tiles and a renderer aspect ratio in detail.
+    var isMatrix: Bool {
+        switch self {
+        case .qr, .aztec: true
+        case .pdf417, .code128: false
+        }
+    }
 }

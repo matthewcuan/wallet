@@ -22,7 +22,7 @@ targets:
     info:
       path: Wallet/Info.plist
       properties:
-        CFBundleDisplayName: Wallet
+        CFBundleDisplayName: Stash
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false

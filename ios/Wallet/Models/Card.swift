@@ -4,56 +4,45 @@ import SwiftData
 @Model
 final class Card {
     @Attribute(.unique) var id: UUID
-    var label: String
-    var passDescription: String
-    var passType: PassType
+    var name: String
+    var subtitle: String
+    var kind: CardKind
+    var paletteIndex: Int
     var barcodeFormat: BarcodeFormat
     var barcodeMessage: String
-    var backgroundColor: String
-    var foregroundColor: String
-    var labelColor: String
     var createdAt: Date
 
     init(
         id: UUID = UUID(),
-        label: String,
-        passDescription: String,
-        passType: PassType,
+        name: String,
+        subtitle: String,
+        kind: CardKind,
+        paletteIndex: Int,
         barcodeFormat: BarcodeFormat,
         barcodeMessage: String,
-        backgroundColor: String,
-        foregroundColor: String,
-        labelColor: String,
         createdAt: Date = .now
     ) {
         self.id = id
-        self.label = label
-        self.passDescription = passDescription
-        self.passType = passType
+        self.name = name
+        self.subtitle = subtitle
+        self.kind = kind
+        self.paletteIndex = paletteIndex
         self.barcodeFormat = barcodeFormat
         self.barcodeMessage = barcodeMessage
-        self.backgroundColor = backgroundColor
-        self.foregroundColor = foregroundColor
-        self.labelColor = labelColor
         self.createdAt = createdAt
     }
 }
 
 extension Card {
-    var passColors: PassColors {
-        PassColors(
-            background: backgroundColor,
-            foreground: foregroundColor,
-            label: labelColor
-        )
-    }
+    var palette: PassPalette { PassPalette.at(paletteIndex) }
+    var passType: PassType { kind.passType }
 
     func makeRequest() -> PassRequest {
         PassRequest(
             type: passType,
-            label: label,
-            description: passDescription,
-            colors: passColors,
+            label: name,
+            description: subtitle.isEmpty ? kind.displayName : subtitle,
+            colors: palette.colors,
             barcode: PassBarcode(format: barcodeFormat, message: barcodeMessage, altText: nil)
         )
     }

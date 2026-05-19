@@ -14,6 +14,8 @@ struct WalletApp: App {
         WindowGroup {
             HomeView()
                 .environment(\.passClient, passClient)
+                .background(Color.stashBackground.ignoresSafeArea())
+                .tint(Color.stashCoral)
         }
         .modelContainer(for: Card.self)
     }
