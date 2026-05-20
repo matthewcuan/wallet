@@ -6,6 +6,7 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var query: String = ""
     @State private var isShowingScanner = false
+    @State private var isShowingManual = false
     @State private var openCard: Card?
 
     private var filteredCards: [Card] {
@@ -37,8 +38,17 @@ struct HomeView: View {
                     }
                 }
 
-                ScanButton(action: { isShowingScanner = true })
-                    .padding(.bottom, 34)
+                VStack(spacing: 12) {
+                    ScanButton(action: { isShowingScanner = true })
+                    Button(action: { isShowingManual = true }) {
+                        Text("Enter a code manually")
+                            .font(.stash(13, weight: .semibold))
+                            .foregroundStyle(Color.stashCoral)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Enter a code manually")
+                }
+                .padding(.bottom, 34)
             }
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(item: $openCard) { card in
@@ -47,6 +57,9 @@ struct HomeView: View {
         }
         .fullScreenCover(isPresented: $isShowingScanner) {
             ScanFlow()
+        }
+        .fullScreenCover(isPresented: $isShowingManual) {
+            ManualEntryFlow()
         }
     }
 
