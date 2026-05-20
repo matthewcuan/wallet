@@ -21,9 +21,11 @@ Last updated: 2026-05-20
 | c11c941 | 2026-05-13 | docs: log PassSlot signer in STATUS.md                                                                          |
 | 879b941 | 2026-05-13 | fix(backend): use PassSlot API path for pkpass download, not the response url                                   |
 | bb22174 | 2026-05-13 | feat(ios): surface friendly message when a scanned barcode isn't Wallet-compatible                              |
-| d5d5c25 | 2026-05-19 | feat(ios): apply Stash design — warm theme, 8-palette tiles, custom header, overlay scanner, color-block detail |
-| 263d8f7 | 2026-05-19 | docs: log Stash redesign in STATUS                                                                              |
-| 5a4677f | 2026-05-20 | feat(ios): manual entry — pick format, type or paste a value, save to wallet                                    |
+| 3996760 | 2026-05-14 | fix(ios): keep Add Card form open when Wallet preview is cancelled (WalletAdderOutcome enum)                    |
+| 4a217d4 | 2026-05-14 | feat(ios): swipe-to-delete cards (List-era; translated to tile context menu after redesign)                     |
+| 22bea07 | 2026-05-19 | feat(ios): apply Stash design — warm theme, 8-palette tiles, custom header, overlay scanner, color-block detail |
+| fbd48b3 | 2026-05-19 | docs: log Stash redesign in STATUS                                                                              |
+| a53ef65 | 2026-05-20 | feat(ios): manual entry — pick format, type or paste a value, save to wallet                                    |
 
 ## Pending — v1 gaps
 
