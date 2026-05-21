@@ -179,7 +179,6 @@ private struct DimMask: View {
 }
 
 private extension View {
-    @inlinable
     func reverseMask<Mask: View>(@ViewBuilder _ mask: () -> Mask) -> some View {
         self.mask {
             Rectangle()
