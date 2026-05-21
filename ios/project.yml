@@ -22,12 +22,12 @@ targets:
     info:
       path: Wallet/Info.plist
       properties:
-        CFBundleDisplayName: Stash
+        CFBundleDisplayName: Wallet
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         NSCameraUsageDescription: Used to scan barcodes that you want to add to Apple Wallet.
-        NSLocalNetworkUsageDescription: Stash sends scanned codes to a pass-signing service on your local network so they can be added to Apple Wallet.
+        NSLocalNetworkUsageDescription: Wallet sends scanned codes to a pass-signing service on your local network so they can be added to Apple Wallet.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
         UISupportedInterfaceOrientations:
