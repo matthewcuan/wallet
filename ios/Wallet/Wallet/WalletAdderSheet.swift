@@ -52,7 +52,7 @@ struct WalletAdderSheet: UIViewControllerRepresentable {
             self.onComplete = onComplete
             super.init()
             observer = NotificationCenter.default.addObserver(
-                forName: PKPassLibrary.didChangeNotification,
+                forName: Notification.Name(rawValue: "PKPassLibraryDidChangeNotification"),
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
