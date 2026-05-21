@@ -13,6 +13,12 @@ enum WalletAdderOutcome {
 
 struct WalletAdderSheet: UIViewControllerRepresentable {
     let passData: Data
+    /// Pass-type identifiers the app holds entitlements for. When the parsed
+    /// pass's type ID matches one of these, the coordinator uses
+    /// PKPassLibraryDidChange to distinguish Add from Cancel. For everything
+    /// else (e.g. PassSlot's `pass.slot.generic`) we can't observe the library,
+    /// so any finish is reported as `.added`.
+    let entitledPassTypeIdentifiers: Set<String>
     let onComplete: (WalletAdderOutcome) -> Void
 
     func makeUIViewController(context: Context) -> UIViewController {
@@ -23,6 +29,8 @@ struct WalletAdderSheet: UIViewControllerRepresentable {
                 return UIViewController()
             }
             controller.delegate = context.coordinator
+            context.coordinator.observesLibrary =
+                entitledPassTypeIdentifiers.contains(pass.passTypeIdentifier ?? "")
             return controller
         } catch {
             onComplete(.failed(error))
@@ -36,18 +44,15 @@ struct WalletAdderSheet: UIViewControllerRepresentable {
 
     final class Coordinator: NSObject, PKAddPassesViewControllerDelegate {
         let onComplete: (WalletAdderOutcome) -> Void
+        var observesLibrary = false
         private var libraryDidChange = false
         private var observer: NSObjectProtocol?
 
         init(onComplete: @escaping (WalletAdderOutcome) -> Void) {
             self.onComplete = onComplete
             super.init()
-            // `PKPassLibrary().containsPass(_:)` is unreliable without a matching
-            // pass-type-identifiers entitlement (PassSlot passes use their Pass
-            // Type ID, not ours). The library-change notification fires only on
-            // an actual install, so it gives us a trustworthy Add-vs-Cancel signal.
             observer = NotificationCenter.default.addObserver(
-                forName: Notification.Name(rawValue: "PKPassLibraryDidChangeNotification"),
+                forName: PKPassLibrary.didChangeNotification,
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
@@ -56,17 +61,15 @@ struct WalletAdderSheet: UIViewControllerRepresentable {
         }
 
         deinit {
-            if let observer {
-                NotificationCenter.default.removeObserver(observer)
-            }
+            if let observer { NotificationCenter.default.removeObserver(observer) }
         }
 
-        // Don't call `controller.dismiss` here — PKAddPassesViewController has
-        // already dismissed itself, so doing it again pops the next sheet up the
-        // stack (the scan flow), closing the Add Card form on cancel.
-        // SwiftUI dismisses our wrapping sheet when the binding clears.
         func addPassesViewControllerDidFinish(_: PKAddPassesViewController) {
-            onComplete(libraryDidChange ? .added : .cancelled)
+            if observesLibrary {
+                onComplete(libraryDidChange ? .added : .cancelled)
+            } else {
+                onComplete(.added)
+            }
         }
     }
 }

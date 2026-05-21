@@ -14,6 +14,7 @@ struct PassFormView: View {
     @State private var isSubmitting = false
 
     @Environment(\.passClient) private var passClient
+    @Environment(\.entitledPassTypeIdentifiers) private var entitledPassTypeIdentifiers
     @Environment(\.modelContext) private var modelContext
 
     private var canSave: Bool {
@@ -48,7 +49,10 @@ struct PassFormView: View {
         }
         .background(Color.stashBackground.ignoresSafeArea())
         .sheet(item: $passData) { payload in
-            WalletAdderSheet(passData: payload.data) { outcome in
+            WalletAdderSheet(
+                passData: payload.data,
+                entitledPassTypeIdentifiers: entitledPassTypeIdentifiers
+            ) { outcome in
                 passData = nil
                 switch outcome {
                 case .added:

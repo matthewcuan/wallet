@@ -5,6 +5,7 @@ struct CardDetailView: View {
     let card: Card
 
     @Environment(\.passClient) private var passClient
+    @Environment(\.entitledPassTypeIdentifiers) private var entitledPassTypeIdentifiers
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -55,7 +56,10 @@ struct CardDetailView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $passData) { payload in
-            WalletAdderSheet(passData: payload.data) { outcome in
+            WalletAdderSheet(
+                passData: payload.data,
+                entitledPassTypeIdentifiers: entitledPassTypeIdentifiers
+            ) { outcome in
                 passData = nil
                 if case .failed(let error) = outcome {
                     errorMessage = error.localizedDescription

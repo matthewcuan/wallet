@@ -49,3 +49,18 @@ extension EnvironmentValues {
         set { self[PassClientKey.self] = newValue }
     }
 }
+
+private struct EntitledPassTypeIdentifiersKey: EnvironmentKey {
+    static let defaultValue: Set<String> = []
+}
+
+extension EnvironmentValues {
+    /// Pass-type identifiers (e.g. `pass.com.yourname.wallet`) for which this
+    /// build holds the matching Apple-issued Pass Type ID entitlement. Used by
+    /// `WalletAdderSheet` to enable reliable Add/Cancel detection. Leave empty
+    /// when relying solely on a third-party signer like PassSlot.
+    var entitledPassTypeIdentifiers: Set<String> {
+        get { self[EntitledPassTypeIdentifiersKey.self] }
+        set { self[EntitledPassTypeIdentifiersKey.self] = newValue }
+    }
+}
