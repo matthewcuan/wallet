@@ -2,7 +2,7 @@
 
 Living snapshot of what's done and what's pending. Update whenever a commit lands, a task starts or finishes, or scope shifts.
 
-Last updated: 2026-05-20
+Last updated: 2026-07-10
 
 ## Done
 
@@ -26,23 +26,21 @@ Last updated: 2026-05-20
 | 22bea07 | 2026-05-19 | feat(ios): apply Stash design — warm theme, 8-palette tiles, custom header, overlay scanner, color-block detail |
 | fbd48b3 | 2026-05-19 | docs: log Stash redesign in STATUS                                                                              |
 | a53ef65 | 2026-05-20 | feat(ios): manual entry — pick format, type or paste a value, save to wallet                                    |
+| bb225d2 | 2026-05-20 | docs: log manual code entry in STATUS                                                                           |
+| e6d7d4e | 2026-05-20 | docs: refresh STATUS hashes after rebase                                                                        |
+| f60060d | 2026-05-21 | fix(ios): drop @inlinable from fileprivate reverseMask helper (first real-Mac build)                            |
+| bb4bf7a | 2026-05-21 | fix(ios): declare NSLocalNetworkUsageDescription so LAN requests work on device                                 |
+| dc3aa3d | 2026-05-21 | chore(ios): rename display from Stash back to Wallet                                                            |
+| d68f996 | 2026-05-21 | fix(ios): gate Add/Cancel detection on entitled pass-type IDs                                                   |
+| 0e3d72a | 2026-05-21 | fix(ios): use raw notification name for PKPassLibraryDidChange                                                  |
 
 ## Pending — v1 gaps
 
 These were promised in the v1 scope but are not yet finished.
 
-### 1. Verify the iOS scaffold compiles
-The Swift code was written from docs without a Mac, so it has never been built.
-- On a Mac: `cd ios && xcodegen`
-- Run the test suite: `xcodebuild -project Wallet.xcodeproj -scheme Wallet -destination 'platform=iOS Simulator,name=iPhone 15' test`
-- Fix any compile errors. Most-likely suspect spots:
-  - `barcode.observation.symbology` in `BarcodeScanner.swift` (VisionKit API path)
-  - SwiftData enum-typed properties on `Card`
+Resolved 2026-05-21: the former gaps 1 (verify the iOS scaffold compiles) and 2 (end-to-end smoke) are done — the app was built on a real Mac and run on a device against a LAN backend, flushing out the compile fix (f60060d), the local-network permission (bb4bf7a), and the PassSlot Add/Cancel handling (d68f996, 0e3d72a).
 
-### 2. End-to-end smoke
-Backend running + iOS app on a phone, verify scan → form → POST `/pass` → bytes received. With `SIGNER=mock` (default), Wallet-sheet `PKPass(data:)` is expected to fail; with `SIGNER=passslot` (PassSlot App Key + template configured per README) the full add-to-Wallet flow should complete.
-
-### 3. Real pkpass signing — final verification
+### 1. Real pkpass signing — final verification
 The signer code itself is in (commit `e71a214`); what remains is the cert + assets work and proving a signed pass loads on a real device.
 - Apple Developer enrollment + Pass Type ID + `.p12`
 - Extract `signerCert.pem` and `signerKey.pem` (commands in README)
@@ -87,3 +85,5 @@ Intentionally out of scope for v1.
 - 2026-05-13: PassSlot added as a third signer alongside `mock` and `passkit`. Selected via the new `SIGNER` env enum (replaces boolean `MOCK_SIGNER`). PassSlot gives a no-Apple-Dev-account path to real Wallet adds, at the cost of using PassSlot's Pass Type ID and template-owned visual design.
 - 2026-05-19: Applied the Stash design from `claude.ai/design`. New design tokens (Helvetica Neue, warm `#F7F5F1` background, coral `#C24A2C` accent), 8 named palettes (Forest/Clay/Ink/Mustard/Slate/Plum/Sage/Coral) replacing the prior 5, and a user-facing `CardKind` taxonomy (Loyalty/Ticket/Membership/Gift/Library/Other) mapped onto Apple's `PassType` for the backend. `Card` schema changed (no migration plan — wipe-and-reinstall in dev). Backend untouched. `CFBundleDisplayName` flipped to "Stash"; target/folder names stay "Wallet" to avoid a wholesale rename.
 - 2026-05-20: Added a manual code-entry flow alongside the camera scanner — `ManualEntryFlow` + `ManualEntryView` collect a format (QR/PDF417/Aztec/Code 128) and a typed/pasted value, render a live preview via the existing `CodeRenderer`, then hand off a synthetic `ScannedBarcode` to the unchanged `PassFormView`. Entry point is a coral text link directly under the floating Scan pill on Home (Scan stays primary). Clipboard is opt-in via an explicit Paste button rather than auto-peek, to keep iOS's pasteboard banner from firing on screen open.
+- 2026-05-21: Display name reverted from "Stash" back to "Wallet" (dc3aa3d); target/folder names had never changed.
+- 2026-05-21: Add/Cancel detection in the Wallet sheet is gated on `entitledPassTypeIdentifiers` (empty by default). `PKPassLibraryDidChange` only fires for pass types matching our entitlement, so for non-entitled passes — including all PassSlot passes — any sheet finish is reported as `.added`, dismissing the form and persisting the card. Populate the set once we own an Apple Pass Type ID.
