@@ -2,7 +2,7 @@
 
 Living snapshot of what's done and what's pending. Update whenever a commit lands, a task starts or finishes, or scope shifts.
 
-Last updated: 2026-07-10
+Last updated: 2026-08-19
 
 ## Done
 
@@ -33,6 +33,8 @@ Last updated: 2026-07-10
 | dc3aa3d | 2026-05-21 | chore(ios): rename display from Stash back to Wallet                                                            |
 | d68f996 | 2026-05-21 | fix(ios): gate Add/Cancel detection on entitled pass-type IDs                                                   |
 | 0e3d72a | 2026-05-21 | fix(ios): use raw notification name for PKPassLibraryDidChange                                                  |
+| 274e9c0 | 2026-07-10 | docs: bring STATUS up to date through the 05-21 device fixes                                                    |
+| 641794b | 2026-08-19 | feat(backend): add setup-certs.sh to bootstrap the passkit signer                                               |
 
 ## Pending — v1 gaps
 
@@ -41,19 +43,20 @@ These were promised in the v1 scope but are not yet finished.
 Resolved 2026-05-21: the former gaps 1 (verify the iOS scaffold compiles) and 2 (end-to-end smoke) are done — the app was built on a real Mac and run on a device against a LAN backend, flushing out the compile fix (f60060d), the local-network permission (bb4bf7a), and the PassSlot Add/Cancel handling (d68f996, 0e3d72a).
 
 ### 1. Real pkpass signing — final verification
-The signer code itself is in (commit `e71a214`); what remains is the cert + assets work and proving a signed pass loads on a real device.
-- Apple Developer enrollment + Pass Type ID + `.p12`
-- Extract `signerCert.pem` and `signerKey.pem` (commands in README)
-- Download WWDR `.pem` → `backend/certs/wwdr.pem`
-- Build `backend/templates/<passType>/` directories with real `pass.json`, `icon.png`/@2x/@3x, `logo.png`/@2x/@3x
-- Set `SIGNER=passkit` and verify a signed pass actually adds to a real device's Wallet
+The signer code is in (`e71a214`) and the cert plumbing is now scripted (`641794b`, `npm run setup:certs`). What's left is the part only a human with a developer account can do, plus proof on a device.
+- Apple Developer enrollment ($99/yr) — **blocking everything below**
+- Create the Pass Type ID, upload `certs/pass.certSigningRequest`, save the issued cert to `certs/pass.cer`
+- Run `npm run setup:certs finalize` (PEMs + WWDR + templates + `.env`), then fill `PASS_TYPE_IDENTIFIER` and `TEAM_IDENTIFIER`
+- Replace the scaffolded placeholder `pass.json` / icon / logo art with real branding
+- Add the Pass Type ID to `entitledPassTypeIdentifiers` in the iOS app so Add/Cancel detection stops falling back to `.added`
+- Flip `SIGNER` from `passslot` to `passkit` and verify a signed pass adds to a real device's Wallet
 
 ## Pending — pre-deploy chores
 
 Not blocking development, blocking ship.
 
 ### Backend
-- Upgrade Node to 20 + Fastify to v5 (audit reports 1 high vuln on Fastify v4)
+- Upgrade Node to 20 + Fastify to v5 — `npm audit` is now 11 vulns (1 critical, 6 high, 4 moderate): fastify, fast-uri, find-my-way, nanoid, postcss, vite/vitest (critical, dev-only)
 - Pick a deploy target (Fly.io / Render / Railway) and add deploy config
 
 ### iOS
@@ -87,3 +90,4 @@ Intentionally out of scope for v1.
 - 2026-05-20: Added a manual code-entry flow alongside the camera scanner — `ManualEntryFlow` + `ManualEntryView` collect a format (QR/PDF417/Aztec/Code 128) and a typed/pasted value, render a live preview via the existing `CodeRenderer`, then hand off a synthetic `ScannedBarcode` to the unchanged `PassFormView`. Entry point is a coral text link directly under the floating Scan pill on Home (Scan stays primary). Clipboard is opt-in via an explicit Paste button rather than auto-peek, to keep iOS's pasteboard banner from firing on screen open.
 - 2026-05-21: Display name reverted from "Stash" back to "Wallet" (dc3aa3d); target/folder names had never changed.
 - 2026-05-21: Add/Cancel detection in the Wallet sheet is gated on `entitledPassTypeIdentifiers` (empty by default). `PKPassLibraryDidChange` only fires for pass types matching our entitlement, so for non-entitled passes — including all PassSlot passes — any sheet finish is reported as `.added`, dismissing the form and persisting the card. Populate the set once we own an Apple Pass Type ID.
+- 2026-08-19: Cert provisioning is scripted as `backend/scripts/setup-certs.sh` (`npm run setup:certs`), generating the key and CSR directly with `openssl` instead of the Keychain `.p12` round-trip — fewer manual steps, and the key never leaves `backend/certs/` (gitignored). The `.p12` route stays in the README as a fallback. `finalize` also scaffolds placeholder templates for all five pass types and refuses to clobber an existing `.env`.

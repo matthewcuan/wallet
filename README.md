@@ -87,6 +87,24 @@ For shipping a real product under your own branding (instead of routing through 
 
 1. Enroll in the [Apple Developer Program](https://developer.apple.com/programs/) ($99/yr).
 2. Create a **Pass Type ID** in the developer portal.
+
+`backend/scripts/setup-certs.sh` automates the crypto plumbing around those two
+manual steps — it generates the key and CSR with `openssl` (no Keychain, no
+`.p12`), then converts the issued cert, fetches the WWDR cert, scaffolds the
+template dirs, and seeds `.env`:
+
+```sh
+cd backend
+npm run setup:certs generate        # writes certs/pass.key + certs/pass.certSigningRequest
+# → upload the CSR in the portal, save the issued cert to backend/certs/pass.cer
+npm run setup:certs finalize        # PEMs + WWDR + templates + .env (SIGNER=passkit)
+```
+
+Then fill `PASS_TYPE_IDENTIFIER` and `TEAM_IDENTIFIER` in `backend/.env`, replace
+the placeholder template art with real branding, and run `npm run dev`.
+
+<details><summary>Or do it by hand (the .p12 route)</summary>
+
 3. Generate the Pass Type ID certificate and export it as a `.p12`.
 4. Extract the cert and key as PEMs (passkit-generator needs them separate):
 
@@ -99,3 +117,5 @@ For shipping a real product under your own branding (instead of routing through 
 6. Fill in `backend/.env` with the cert paths, your Pass Type ID, and your Team ID.
 7. Provide pass templates under `backend/templates/<passType>/` (one folder per pass type, each containing `pass.json`, `icon.png`/@2x/@3x, `logo.png`/@2x/@3x).
 8. Set `SIGNER=passkit` in `backend/.env`.
+
+</details>
