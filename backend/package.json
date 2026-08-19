@@ -12,7 +12,8 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "setup:certs": "bash scripts/setup-certs.sh"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
